@@ -1,0 +1,32 @@
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
+@import './base.css';
+
+#app {
+  font-weight: normal;
+  min-height: 100vh;
+}
+
+/* 自定义样式 */
+.loading-animation {
+  display: inline-block;
+  width: 1rem;
+  height: 1rem;
+  border: 2px solid #f3f3f3;
+  border-radius: 50%;
+  border-top: 2px solid #3498db;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* 移动端适配 */
+@media (max-width: 768px) {
+  #app {
+    padding: 0;
+  }
+}

@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI旅游助手 - 管理后台</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <style>
+        .loading-animation {
+            display: inline-block;
+            width: 1rem;
+            height: 1rem;
+            border: 2px solid #f3f3f3;
+            border-radius: 50%;
+            border-top: 2px solid #3498db;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body class="bg-gray-50">
+    <div id="app" class="min-h-screen">
+  <!-- 顶部导航栏 -->
+  <header class="bg-white shadow-sm sticky top-0 z-50">
+            <div class="flex items-center justify-between py-4 px-6">
+                <div class="flex items-center space-x-4">
+      <div class="flex items-center space-x-2">
+                        <i class="fa fa-cog text-blue-500 text-xl"></i>
+                        <h1 class="text-xl font-bold text-gray-800">AI旅游助手 - 管理后台</h1>
+                    </div>
+      </div>
+                <div class="flex items-center space-x-4">
+                    <button @click="saveAllChanges" class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600">
+                        <i class="fa fa-save mr-1"></i>保存所有更改
+                    </button>
+                    <button @click="goToFrontend" class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600">
+                        <i class="fa fa-external-link mr-1"></i>查看前端
+        </button>
+      </div>
+    </div>
+  </header>
+
+        <!-- 主要内容区域 -->
+        <main class="p-6">
+            <div class="max-w-7xl mx-auto">
+                <!-- 问候语设置 -->
+                <div class="bg-white rounded-xl shadow-md p-6 mb-6">
+                    <h2 class="text-xl font-bold text-gray-800 mb-4">首页问候语设置</h2>
+                    <textarea v-model="config.homeGreeting" rows="3" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="请输入首页问候语..."></textarea>
+    </div>
+
+                <!-- 内容管理 -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                    <!-- 热门景点 -->
+                    <div class="bg-white rounded-xl shadow-md p-6">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-lg font-bold text-gray-800">热门景点</h3>
+                            <button @click="addItem('attractions')" class="px-3 py-1 bg-blue-500 text-white rounded-lg hover:bg-blue-600">
+                                <i class="fa fa-plus mr-1"></i>添加
+                            </button>
+        </div>
+                        <div class="space-y-2">
+                            <div v-for="(item, index) in config.categories.attractions.items" :key="index" class="flex items-center space-x-2 p-2 border border-gray-200 rounded-lg">
+                                <input v-model="item.name" class="flex-1 p-1 border border-gray-300 rounded" placeholder="景点名称">
+                                <button @click="removeItem('attractions', index)" class="text-red-500 hover:text-red-700">
+                    <i class="fa fa-trash"></i>
+                  </button>
+                            </div>
+                        </div>
+        </div>
+
+                    <!-- 出游攻略 -->
+                    <div class="bg-white rounded-xl shadow-md p-6">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-lg font-bold text-gray-800">出游攻略</h3>
+                            <button @click="addItem('guides')" class="px-3 py-1 bg-green-500 text-white rounded-lg hover:bg-green-600">
+            <i class="fa fa-plus mr-1"></i>添加
+                            </button>
+                        </div>
+                        <div class="space-y-2">
+                            <div v-for="(item, index) in config.categories.guides.items" :key="index" class="flex items-center space-x-2 p-2 border border-gray-200 rounded-lg">
+                                <input v-model="item.name" class="flex-1 p-1 border border-gray-300 rounded" placeholder="攻略内容">
+                                <button @click="removeItem('guides', index)" class="text-red-500 hover:text-red-700">
+                                    <i class="fa fa-trash"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+
+                    <!-- 特色线路 -->
+                    <div class="bg-white rounded-xl shadow-md p-6">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-lg font-bold text-gray-800">特色线路</h3>
+                            <button @click="addItem('routes')" class="px-3 py-1 bg-purple-500 text-white rounded-lg hover:bg-purple-600">
+                                <i class="fa fa-plus mr-1"></i>添加
+            </button>
+          </div>
+          <div class="space-y-2">
+                            <div v-for="(item, index) in config.categories.routes.items" :key="index" class="flex items-center space-x-2 p-2 border border-gray-200 rounded-lg">
+                                <input v-model="item.name" class="flex-1 p-1 border border-gray-300 rounded" placeholder="线路名称">
+                                <button @click="removeItem('routes', index)" class="text-red-500 hover:text-red-700">
+                                    <i class="fa fa-trash"></i>
+                                </button>
+                            </div>
+          </div>
+        </div>
+
+                    <!-- 必吃好店 -->
+                    <div class="bg-white rounded-xl shadow-md p-6">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-lg font-bold text-gray-800">必吃好店</h3>
+                            <button @click="addItem('restaurants')" class="px-3 py-1 bg-red-500 text-white rounded-lg hover:bg-red-600">
+                                <i class="fa fa-plus mr-1"></i>添加
+            </button>
+          </div>
+          <div class="space-y-2">
+                            <div v-for="(item, index) in config.categories.restaurants.items" :key="index" class="flex items-center space-x-2 p-2 border border-gray-200 rounded-lg">
+                                <input v-model="item.name" class="flex-1 p-1 border border-gray-300 rounded" placeholder="店铺名称">
+                                <button @click="removeItem('restaurants', index)" class="text-red-500 hover:text-red-700">
+                                    <i class="fa fa-trash"></i>
+                                </button>
+                            </div>
+          </div>
+        </div>
+      </div>
+
+                <!-- 图片管理 -->
+                <div class="bg-white rounded-xl shadow-md p-6 mb-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-xl font-bold text-gray-800">图片管理</h2>
+                        <button @click="showImageUpload = true" class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600">
+                            <i class="fa fa-upload mr-1"></i>上传图片
+                        </button>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <div v-for="(image, index) in config.images" :key="index" class="border border-gray-200 rounded-lg p-4">
+                            <img :src="image.url" :alt="image.name" class="w-full h-32 object-cover rounded-lg mb-2">
+                            <input v-model="image.name" class="w-full p-2 border border-gray-300 rounded mb-2" placeholder="图片描述">
+                            <div class="flex justify-between">
+                                <button @click="removeImage(index)" class="text-red-500 hover:text-red-700">
+                                    <i class="fa fa-trash mr-1"></i>删除
+                                </button>
+                                <button @click="editImage(index)" class="text-blue-500 hover:text-blue-700">
+                                    <i class="fa fa-edit mr-1"></i>编辑
+          </button>
+                            </div>
+        </div>
+      </div>
+    </div>
+
+                <!-- LLM配置 -->
+                <div class="bg-white rounded-xl shadow-md p-6">
+                    <h2 class="text-xl font-bold text-gray-800 mb-4">AI模型配置</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">模型提供商</label>
+                            <select v-model="config.llm.provider" class="w-full p-2 border border-gray-300 rounded-lg">
+                                <option value="deepseek">DeepSeek</option>
+                                <option value="ark">豆包 Ark</option>
+                            </select>
+        </div>
+        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">模型版本</label>
+                            <select v-model="config.llm.model" class="w-full p-2 border border-gray-300 rounded-lg">
+                                <option v-for="model in availableModels" :key="model.value" :value="model.value">
+                                    {{ model.label }}
+                                </option>
+                            </select>
+          </div>
+                        <div v-if="config.llm.provider === 'ark'">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Ark API密钥</label>
+                            <input v-model="config.llm.arkApiKey" type="password" class="w-full p-2 border border-gray-300 rounded-lg" placeholder="请输入Ark API密钥">
+                        </div>
+                        <div v-else>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">API密钥</label>
+                            <input v-model="config.llm.apiKey" type="password" class="w-full p-2 border border-gray-300 rounded-lg" placeholder="请输入API密钥">
+                        </div>
+        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">温度参数</label>
+                            <input v-model="config.llm.temperature" type="number" min="0" max="2" step="0.1" class="w-full p-2 border border-gray-300 rounded-lg" placeholder="0.7">
+        </div>
+      </div>
+    </div>
+    </div>
+  </main>
+
+        <!-- 图片上传模态框 -->
+        <div v-if="showImageUpload" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div class="bg-white rounded-lg p-6 w-96">
+                <h3 class="text-lg font-bold mb-4">上传图片</h3>
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">图片文件</label>
+                        <input type="file" @change="handleImageUpload" accept="image/*" class="w-full p-2 border border-gray-300 rounded-lg">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">图片描述</label>
+                        <input v-model="newImage.name" class="w-full p-2 border border-gray-300 rounded-lg" placeholder="请输入图片描述">
+                    </div>
+                    <div class="flex justify-end space-x-2">
+                        <button @click="showImageUpload = false" class="px-4 py-2 border border-gray-300 rounded-lg">取消</button>
+                        <button @click="addImage" class="px-4 py-2 bg-blue-500 text-white rounded-lg">上传</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+  <script>
+        const { createApp, ref, reactive, computed, watch, onMounted } = Vue
+
+        createApp({
+            setup() {
+                const config = reactive({
+                    homeGreeting: '欢迎来到杭州！我是您的专属AI旅游助手，让我为您规划一次完美的杭州之旅吧～',
+                    categories: {
+                        attractions: {
+                            title: '热门景点',
+                            description: '杭州最受欢迎的旅游景点，感受西湖之美和古都文化',
+                            items: [
+                                { id: 'xihu', name: '西湖', type: 'attraction' },
+                                { id: 'lingyin', name: '灵隐寺', type: 'attraction' },
+                                { id: 'qiandaohu', name: '千岛湖', type: 'attraction' },
+                                { id: 'songcheng', name: '宋城', type: 'attraction' },
+                                { id: 'xixi', name: '西溪湿地', type: 'attraction' },
+                                { id: 'leifeng', name: '雷峰塔', type: 'attraction' }
+                            ]
+                        },
+                        guides: {
+                            title: '出游攻略',
+                            description: '实用的出行建议，让您的杭州之旅更加顺畅',
+                            items: [
+                                { id: 'transport', name: '以地铁+共享单车为主要出行方式', type: 'guide' },
+                                { id: 'accommodation', name: '优先选择西湖周边住宿区域', type: 'guide' },
+                                { id: 'season', name: '在9-10月最佳赏桂花季节出游', type: 'guide' },
+                                { id: 'weather', name: '春秋季节气候宜人，适合户外活动', type: 'guide' },
+                                { id: 'crowd', name: '避开节假日高峰期，选择工作日出行', type: 'guide' }
+                            ]
+                        },
+                        routes: {
+                            title: '特色线路',
+                            description: '精心设计的主题路线，深度体验杭州文化',
+                            items: [
+                                { id: 'tea-culture', name: '茶文化之旅（灵隐寺-龙井村-梅家坞）', type: 'route' },
+                                { id: 'west-lake', name: '西湖经典游（断桥-白堤-苏堤-雷峰塔）', type: 'route' },
+                                { id: 'ancient-town', name: '古镇风情游（河坊街-清河坊-南宋御街）', type: 'route' },
+                                { id: 'nature', name: '自然生态游（西溪湿地-植物园-九溪十八涧）', type: 'route' }
+                            ]
+                        },
+                        restaurants: {
+                            title: '必吃好店',
+                            description: '地道杭帮菜和特色小吃，品味杭州美食文化',
+                            items: [
+                                { id: 'louwailou', name: '楼外楼（西湖醋鱼）', type: 'restaurant' },
+                                { id: 'zhiweiguan', name: '知味观（小笼包）', type: 'restaurant' },
+                                { id: 'waipoqiao', name: '外婆桥（杭帮菜）', type: 'restaurant' },
+                                { id: 'xihu-longjing', name: '西湖龙井茶馆', type: 'restaurant' },
+                                { id: 'dongpo-meat', name: '东坡肉专门店', type: 'restaurant' }
+                            ]
+                        }
+                    },
+                    images: [
+                        { id: 1, name: '西湖十景', url: 'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400&h=300&fit=crop' },
+                        { id: 2, name: '灵隐寺', url: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=300&fit=crop' },
+                        { id: 3, name: '千岛湖', url: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=300&fit=crop' },
+                        { id: 4, name: '西溪湿地', url: 'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400&h=300&fit=crop' }
+                    ],
+                    llm: {
+                        provider: 'deepseek',
+                        model: 'deepseek-chat',
+                        apiKey: '',
+                        temperature: 0.7,
+                        arkApiKey: '',
+                        arkBaseUrl: ''
+                    }
+                })
+
+                const showImageUpload = ref(false)
+                const newImage = reactive({
+                    name: '',
+                    file: null
+                })
+
+                // 模型配置映射
+                const modelConfigs = {
+                    deepseek: [
+                        { value: 'deepseek-chat', label: 'DeepSeek V3 (Chat)' },
+                        { value: 'deepseek-reasoner', label: 'DeepSeek R1 (Reasoner)' }
+                    ],
+                    ark: [
+                        { value: 'doubao-seed-1-6-250615', label: 'Doubao-Seed-1.6' }
+                    ]
+    }
+
+                // 计算可用的模型选项
+                const availableModels = computed(() => {
+                    return modelConfigs[config.llm.provider] || []
+                })
+
+                // 监听提供商变化，自动调整模型
+                watch(() => config.llm.provider, (newProvider) => {
+                    const models = modelConfigs[newProvider]
+                    if (models && models.length > 0) {
+                        // 如果当前模型不在新提供商的模型列表中，则选择第一个
+                        const currentModelExists = models.some(model => model.value === config.llm.model)
+                        if (!currentModelExists) {
+                            config.llm.model = models[0].value
+      }
+    }
+                })
+
+                const addItem = (category) => {
+                    const newItem = {
+                        id: Date.now().toString(),
+                        name: '',
+                        type: category.slice(0, -1)
+                    }
+                    config.categories[category].items.push(newItem)
+                }
+
+                const removeItem = (category, index) => {
+                    config.categories[category].items.splice(index, 1)
+                }
+
+                const handleImageUpload = (event) => {
+                    const file = event.target.files[0]
+      if (file) {
+                        newImage.file = file
+                        const reader = new FileReader()
+                        reader.onload = (e) => {
+                            newImage.url = e.target.result
+                        }
+                        reader.readAsDataURL(file)
+                    }
+                }
+
+                const addImage = () => {
+                    if (newImage.name && newImage.url) {
+                        config.images.push({
+                            id: Date.now(),
+                            name: newImage.name,
+                            url: newImage.url
+                        })
+                        newImage.name = ''
+                        newImage.url = ''
+                        newImage.file = null
+                        showImageUpload.value = false
+      }
+    }
+
+                const removeImage = (index) => {
+                    config.images.splice(index, 1)
+                }
+
+                const editImage = (index) => {
+                    // 实现图片编辑功能
+                    console.log('编辑图片:', index)
+                }
+
+                const saveAllChanges = () => {
+                    localStorage.setItem('travelAssistantConfig', JSON.stringify(config))
+                    alert('配置已保存！')
+    }
+
+                const goToFrontend = () => {
+                    window.open('/', '_blank')
+                }
+
+                onMounted(() => {
+                    const savedConfig = localStorage.getItem('travelAssistantConfig')
+                    if (savedConfig) {
+                        const parsed = JSON.parse(savedConfig)
+                        Object.assign(config, parsed)
+                    }
+                })
+
+                return {
+                    config,
+                    showImageUpload,
+                    newImage,
+                    availableModels,
+                    addItem,
+                    removeItem,
+                    handleImageUpload,
+                    addImage,
+                    removeImage,
+                    editImage,
+                    saveAllChanges,
+                    goToFrontend
+                }
+      }
+        }).mount('#app')
+  </script>
+</body>
+</html>
