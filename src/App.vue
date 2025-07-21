@@ -131,6 +131,11 @@ const toggleSidebar = () => {
 
 // 生成旅行计划
 const generatePlan = (prompt) => {
+  // 清空之前的对话历史和状态
+  localStorage.removeItem('chatMessages')
+  localStorage.removeItem('chatLoadingState')
+  localStorage.removeItem('lastAIQuery')
+  
   // 保存提示词并切换到聊天页面
   initialMessage.value = prompt
   currentTab.value = 'chat'

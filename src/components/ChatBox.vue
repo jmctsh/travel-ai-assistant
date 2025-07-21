@@ -20,7 +20,8 @@
             <div class="loading-animation mr-2"></div>
             <span>AI正在思考...</span>
           </div>
-          <div v-else class="whitespace-pre-line">{{ message.content }}</div>
+          <div v-else-if="message.type === 'user'" class="whitespace-pre-line">{{ message.content }}</div>
+          <div v-else class="markdown-content" v-html="renderMarkdown(message.content)"></div>
         </div>
       </div>
       
@@ -60,6 +61,10 @@
 <script setup>
 import { ref, onMounted, watch, nextTick, onActivated, inject, onBeforeUnmount } from 'vue'
 import { sendMessageToLLMStream } from '../services/llmService.js'
+import { useMarkdown } from '../composables/useMarkdown.js'
+
+// 使用Markdown渲染功能
+const { renderMarkdown } = useMarkdown()
 
 // 接收props
 const props = defineProps({
@@ -253,15 +258,35 @@ const sendMessage = async () => {
     // 构建对话历史（排除当前正在加载的消息）
     const conversationHistory = getHistoryBefore(aiMessage)
     let fullResponse = ''
+    let hasStartedStreaming = false
+    
     await sendMessageToLLMStream(messageContent, conversationHistory, (chunk) => {
+      // 第一次接收到数据时，切换到流式显示状态
+      if (!hasStartedStreaming) {
+        // 找到对应的消息并更新状态
+        const messageIndex = messages.value.findIndex(m => m.id === aiMessage.id)
+        if (messageIndex !== -1) {
+          messages.value[messageIndex].isLoading = false
+        }
+        hasStartedStreaming = true
+        console.log('[ChatBox] 开始流式显示，切换加载状态')
+      }
       fullResponse += chunk
-      aiMessage.content = fullResponse
-      aiMessage.isLoading = false
+      // 找到对应的消息并更新内容
+      const messageIndex = messages.value.findIndex(m => m.id === aiMessage.id)
+      if (messageIndex !== -1) {
+        messages.value[messageIndex].content = fullResponse
+      }
       saveMessagesToStorage()
       scrollToBottom()
     }, currentAbortController.signal)
-    aiMessage.isLoading = false
-    aiMessage.content = fullResponse
+    
+    // 确保最终状态正确
+    const messageIndex = messages.value.findIndex(m => m.id === aiMessage.id)
+    if (messageIndex !== -1) {
+      messages.value[messageIndex].isLoading = false
+      messages.value[messageIndex].content = fullResponse
+    }
     saveMessagesToStorage()
   } catch (error) {
     if (error.name === 'AbortError') {
@@ -297,15 +322,35 @@ const sendInitialMessage = async () => {
   currentAbortController = new AbortController()
   try {
     let fullResponse = ''
+    let hasStartedStreaming = false
+    
     await sendMessageToLLMStream(props.initialMessage, [], (chunk) => {
+      // 第一次接收到数据时，切换到流式显示状态
+      if (!hasStartedStreaming) {
+        // 找到对应的消息并更新状态
+        const messageIndex = messages.value.findIndex(m => m.id === aiMessage.id)
+        if (messageIndex !== -1) {
+          messages.value[messageIndex].isLoading = false
+        }
+        hasStartedStreaming = true
+        console.log('[ChatBox] 初始消息开始流式显示，切换加载状态')
+      }
       fullResponse += chunk
-      aiMessage.content = fullResponse
-      aiMessage.isLoading = false
+      // 找到对应的消息并更新内容
+      const messageIndex = messages.value.findIndex(m => m.id === aiMessage.id)
+      if (messageIndex !== -1) {
+        messages.value[messageIndex].content = fullResponse
+      }
       saveMessagesToStorage()
       scrollToBottom()
     }, currentAbortController.signal)
-    aiMessage.isLoading = false
-    aiMessage.content = fullResponse
+    
+    // 确保最终状态正确
+    const messageIndex = messages.value.findIndex(m => m.id === aiMessage.id)
+    if (messageIndex !== -1) {
+      messages.value[messageIndex].isLoading = false
+      messages.value[messageIndex].content = fullResponse
+    }
     saveMessagesToStorage()
   } catch (error) {
     if (error.name === 'AbortError') {
@@ -375,16 +420,22 @@ onMounted(async () => {
 })
 
 onActivated(async () => {
-  loadMessagesFromStorage()
-  restoreLoadingState()
-  await recoverAllUnfinishedAIReplies()
+  // 如果有新的初始消息，不加载历史记录，等待watch处理
   if (props.initialMessage && messages.value.length === 0) {
+    // 有新的初始消息且当前没有消息，直接发送初始消息
     await sendInitialMessage()
-  }
-  if (messages.value.length > 0) {
-    await scrollToBottom()
-  } else {
     await scrollToTop()
+  } else if (!props.initialMessage) {
+    // 没有初始消息，正常加载历史记录
+    loadMessagesFromStorage()
+    restoreLoadingState()
+    await recoverAllUnfinishedAIReplies()
+    
+    if (messages.value.length > 0) {
+      await scrollToBottom()
+    } else {
+      await scrollToTop()
+    }
   }
 })
 
@@ -405,22 +456,31 @@ onBeforeUnmount(() => {
 })
 
 // 监听初始消息变化，确保新对话从顶部开始
-watch(() => props.initialMessage, async (newInitialMessage) => {
-  if (newInitialMessage) {
-    // 只要有新需求，清空历史并生成新对话
+watch(() => props.initialMessage, async (newInitialMessage, oldInitialMessage) => {
+  if (newInitialMessage && newInitialMessage !== oldInitialMessage) {
+    // 取消当前正在进行的请求
+    if (currentAbortController) {
+      currentAbortController.abort()
+      currentAbortController = null
+    }
+    
+    // 清空历史并生成新对话
     messages.value = []
     errorMessage.value = ''
     isLoading.value = false
+    
+    // 清除本地存储
+    localStorage.removeItem(STORAGE_KEY)
+    localStorage.removeItem(LOADING_STATE_KEY)
+    localStorage.removeItem(LAST_AI_QUERY_KEY)
+    
+    // 发送新的初始消息
     await sendInitialMessage()
-    if (messages.value.length <= 1) {
-      // 新会话，滚动到顶部
-      await scrollToTop()
-    } else {
-      // 追问，滚动到底部
-      await scrollToBottom()
-    }
+    
+    // 滚动到顶部
+    await scrollToTop()
   }
-})
+}, { immediate: false })
 
 // 监听消息变化，保存到本地存储
 watch(messages, () => {
@@ -450,6 +510,91 @@ watch(isLoading, () => {
   100% { transform: rotate(360deg); }
 }
 
+/* Markdown内容样式优化 */
+.markdown-content {
+  line-height: 1.6;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+/* 确保代码块在消息框内正确显示 */
+.markdown-content pre {
+  max-width: 100%;
+  overflow-x: auto;
+  margin: 0.5rem 0;
+}
+
+.markdown-content code {
+  word-break: break-all;
+}
+
+/* 表格在小屏幕上的响应式处理 */
+.markdown-content table {
+  font-size: 0.875rem;
+  overflow-x: auto;
+  display: block;
+  white-space: nowrap;
+}
+
+.markdown-content table thead,
+.markdown-content table tbody,
+.markdown-content table tr {
+  display: table;
+  width: 100%;
+  table-layout: fixed;
+}
+
+/* 列表样式优化 - 不换行 */
+.markdown-content ul,
+.markdown-content ol {
+  padding-left: 1.5rem;
+  margin: 0.5rem 0;
+}
+
+.markdown-content li {
+  margin: 0.25rem 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: inline-block;
+  width: 100%;
+}
+
+/* 引用块样式 */
+.markdown-content blockquote {
+  margin: 1rem 0;
+  border-radius: 0.375rem;
+}
+
+/* 标题间距优化 */
+.markdown-content h1:first-child,
+.markdown-content h2:first-child,
+.markdown-content h3:first-child,
+.markdown-content h4:first-child,
+.markdown-content h5:first-child,
+.markdown-content h6:first-child {
+  margin-top: 0;
+}
+
+/* 段落间距 */
+.markdown-content p:last-child {
+  margin-bottom: 0;
+}
+
+/* 链接悬停效果 */
+.markdown-content a:hover {
+  text-decoration: underline;
+}
+
+/* 强调文本 */
+.markdown-content strong {
+  font-weight: 600;
+}
+
+.markdown-content em {
+  font-style: italic;
+}
+
 /* 聊天容器滚动条样式 */
 .overflow-y-auto::-webkit-scrollbar {
   width: 6px;
@@ -467,4 +612,4 @@ watch(isLoading, () => {
 .overflow-y-auto::-webkit-scrollbar-thumb:hover {
   background: #a8a8a8;
 }
-</style>    
+</style>
