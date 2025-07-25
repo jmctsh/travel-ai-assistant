@@ -20,6 +20,7 @@ build/
 .idea/
 *.swp
 *.swo
+.codebuddy/
 
 # OS files
 .DS_Store
