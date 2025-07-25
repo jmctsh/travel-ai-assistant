@@ -1,0 +1,20 @@
+{
+  "path": "d:\\我的文档\\MTA课程\\实习\\中电信文宣科技（北京）有限公司\\简易旅游助手\\V6\\travel-ai-assistant-5ec86e67233a673dbba1a81e22bdb5b40153e9a6\\dist",
+  "desc": "AI旅游助手最终版。该版本UI美观，功能强大，并通过条件编译确保了管理后台只在本地开发时可用，保障了生产环境的绝对安全。",
+  "id": "bb0f86338db74d999976faaa97b548f8",
+  "data": {
+    "spaceKey": "bb0f86338db74d999976faaa97b548f8",
+    "connections": {
+      "webIDE": "https://bb0f86338db74d999976faaa97b548f8.ap-singapore.cloudstudio.club",
+      "preview": "https://bb0f86338db74d999976faaa97b548f8--{port}.ap-singapore.cloudstudio.club",
+      "api": "https://bb0f86338db74d999976faaa97b548f8--api.ap-singapore.cloudstudio.club",
+      "pty": "https://bb0f86338db74d999976faaa97b548f8--pty.ap-singapore.cloudstudio.club"
+    }
+  },
+  "config": {
+    "api": "https://bb0f86338db74d999976faaa97b548f8--api.ap-singapore.cloudstudio.club",
+    "pty": "https://bb0f86338db74d999976faaa97b548f8--pty.ap-singapore.cloudstudio.club",
+    "region": "ap-shanghai",
+    "spaceKey": "bb0f86338db74d999976faaa97b548f8"
+  }
+}

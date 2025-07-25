@@ -1,0 +1,149 @@
+{
+  "homeGreeting": "Ciao～ (∠・ω< )⌒★ 欢迎来到杭州！让我为您规划一次完美的杭州之旅吧～",
+  "categories": {
+    "attractions": {
+      "title": "热门景点",
+      "description": "杭州最受欢迎的旅游景点，感受西湖之美和古都文化",
+      "items": [
+        {
+          "id": "xihu",
+          "name": "西湖",
+          "type": "attraction"
+        },
+        {
+          "id": "lingyin",
+          "name": "灵隐寺",
+          "type": "attraction"
+        },
+        {
+          "id": "qiandaohu",
+          "name": "千岛湖",
+          "type": "attraction"
+        },
+        {
+          "id": "new_1753446368933",
+          "name": "西溪湿地",
+          "type": "attraction"
+        },
+        {
+          "id": "new_1753446372861",
+          "name": "宋城",
+          "type": "attraction"
+        }
+      ]
+    },
+    "guides": {
+      "title": "出游攻略",
+      "description": "实用的出行建议，让您的杭州之旅更加顺畅",
+      "items": [
+        {
+          "id": "transport",
+          "name": "以地铁+共享单车为主要出行方式",
+          "type": "guide"
+        },
+        {
+          "id": "accommodation",
+          "name": "优先选择西湖周边住宿区域",
+          "type": "guide"
+        },
+        {
+          "id": "new_1753446326462",
+          "name": "春秋季节出行适宜赏花",
+          "type": "guide"
+        }
+      ]
+    },
+    "routes": {
+      "title": "特色线路",
+      "description": "精心设计的主题路线，深度体验杭州文化",
+      "items": [
+        {
+          "id": "tea-culture",
+          "name": "茶文化之旅（灵隐寺-龙井村-梅家坞）",
+          "type": "route"
+        },
+        {
+          "id": "new_1753446347021",
+          "name": "历史古迹之旅（岳王庙-六和塔-吴山城隍阁）",
+          "type": "route"
+        },
+        {
+          "id": "new_1753446356293",
+          "name": "夜间体验之旅（西湖音乐喷泉-河坊街-京杭大运河夜游）",
+          "type": "route"
+        }
+      ]
+    },
+    "restaurants": {
+      "title": "必吃好店",
+      "description": "地道杭帮菜和特色小吃，品味杭州美食文化",
+      "items": [
+        {
+          "id": "louwailou",
+          "name": "楼外楼",
+          "type": "restaurant"
+        },
+        {
+          "id": "new_1753431113559",
+          "name": "新白鹿",
+          "type": "restaurant"
+        },
+        {
+          "id": "new_1753446396644",
+          "name": "外婆家",
+          "type": "restaurant"
+        },
+        {
+          "id": "new_1753446682677",
+          "name": "奎元馆",
+          "type": "restaurant"
+        },
+        {
+          "id": "new_1753446696157",
+          "name": "天香楼大酒店",
+          "type": "restaurant"
+        },
+        {
+          "id": "new_1753446719044",
+          "name": "知味观·味庄",
+          "type": "restaurant"
+        }
+      ]
+    }
+  },
+  "images": [
+    {
+      "id": "new_1753446229795",
+      "name": "西湖十景",
+      "url": "/uploads/xh10.jpg"
+    },
+    {
+      "id": "new_1753446223951",
+      "name": "宋城千古情",
+      "url": "/uploads/sc.jpg"
+    },
+    {
+      "id": "new_1753446216554",
+      "name": "千岛湖",
+      "url": "/uploads/qdh.jpg"
+    },
+    {
+      "id": "new_1753446209175",
+      "name": "灵隐寺",
+      "url": "/uploads/lys.jpg"
+    },
+    {
+      "id": "new_1753446196791",
+      "name": "雷峰塔",
+      "url": "/uploads/lft.jpg"
+    }
+  ],
+  "llm": {
+    "provider": "deepseek",
+    "model": "deepseek-chat",
+    "temperature": 0.7
+  },
+  "weather": {
+    "cityId": "101210101"
+  }
+}
