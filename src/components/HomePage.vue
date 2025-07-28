@@ -5,7 +5,7 @@
       <h2 class="text-xl font-bold text-gray-800 mb-2">
         <i class="fa fa-hand-wave text-blue-500 mr-2"></i>{{ homeGreeting }}
       </h2>
-      <p class="text-gray-600" style="text-indent: 0;">告诉我您的旅行偏好，我将为您定制专属的杭州旅行计划</p>
+      <p class="text-gray-600" style="text-indent: 0;">告诉我您的旅行偏好，我将为您定制专属的旅行计划</p>
     </div>
     
     <!-- 猜你想了解 -->
