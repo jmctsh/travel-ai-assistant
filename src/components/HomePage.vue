@@ -191,7 +191,7 @@
         <!-- 特殊需求 -->
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-1">特殊需求</label>
-          <textarea v-model="travelPlan.specialRequirements" rows="3" class="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="请输入您的特殊需求，例如：希望安排安静的住宿环境、需要轮椅无障碍设施等"></textarea>
+          <textarea v-model="travelPlan.specialRequirements" rows="3" class="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900" placeholder="请输入您的特殊需求，例如：希望安排安静的住宿环境、需要轮椅无障碍设施等"></textarea>
         </div>
         
         <!-- 生成按钮 -->
